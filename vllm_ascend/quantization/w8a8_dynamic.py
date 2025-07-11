@@ -410,18 +410,22 @@ def fused_prefill_experts_with_mc2(
         end_indx += hidden_states_chunk.shape[0]
         if shared_experts is None:
             hidden_states_outputs[start_indx:end_indx,
-                                  ...] = prefill_expert_outputs
+                                  ...] = prefill_expert_outputs[0]
+            expert_token_nums = prefill_expert_outputs[1]
+            group_list_type = prefill_expert_outputs[2]
         else:
             hidden_states_outputs[start_indx:end_indx,
                                   ...] = prefill_expert_outputs[0]
             shared_outputs[start_indx:end_indx,
                            ...] = prefill_expert_outputs[1]
+            expert_token_nums = prefill_expert_outputs[2]
+            group_list_type = prefill_expert_outputs[3]
         start_indx = end_indx
 
     if shared_experts is None:
-        return hidden_states_outputs
+        return hidden_states_outputs, expert_token_nums, group_list_type
     else:
-        return hidden_states_outputs, shared_outputs
+        return hidden_states_outputs, shared_outputs, expert_token_nums, group_list_type
 
 
 # currently expert parallelism implemented with all2all
